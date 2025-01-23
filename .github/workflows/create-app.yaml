@@ -1,4 +1,4 @@
-name: Release new version
+name: Create new Core Loop apps
 
 permissions:
   id-token: write
@@ -51,9 +51,9 @@ jobs:
           stage_ns=core-loop-$(echo "${{ inputs.staging_data_id }}")-$(echo "${{ inputs.staging_run_id }}")
 
           mkdir -p ./platform/production
-          cp ./templates/core-loop-app.yaml ./platform/production/"${prod_ns}.yaml"
+          cp ./templates/platform/core-loop-app.yaml ./platform/production/"${prod_ns}.yaml"
           awk 'NR==FNR{rep=(NR>1?rep RS:"") $0; next} {gsub(/@HELM_OVERRIDES@/,rep)}1' \
-              ./templates/prod-helm-overrides.yaml ./platform/production/"${prod_ns}.yaml" > prod-tmp
+              ./templates/platform/prod-app-helm-overrides.yaml ./platform/production/"${prod_ns}.yaml" > prod-tmp
           mv prod-tmp ./platform/production/"${prod_ns}.yaml"
           sed -i "s/@ENV@/production/g" ./platform/production/"${prod_ns}.yaml"
           sed -i "s/@NAMESPACE@/${prod_ns}/g" ./platform/production/"${prod_ns}.yaml"
@@ -61,11 +61,10 @@ jobs:
           sed -i "s/@DATA_ID@/${{ inputs.production_data_id }}/g" ./platform/production/"${prod_ns}.yaml"
           sed -i "s/@RUN_ID@/${{ inputs.production_run_id }}/g" ./platform/production/"${prod_ns}.yaml"
 
-
           mkdir -p ./platform/staging
-          cp ./templates/core-loop-app.yaml ./platform/staging/"${stage_ns}.yaml"
+          cp ./templates/platform/core-loop-app.yaml ./platform/staging/"${stage_ns}.yaml"
           awk 'NR==FNR{rep=(NR>1?rep RS:"") $0; next} {gsub(/@HELM_OVERRIDES@/,rep)}1' \
-              ./templates/stage-helm-overrides.yaml ./platform/staging/"${stage_ns}.yaml" > stage-tmp
+              ./templates/platform/stage-app-helm-overrides.yaml ./platform/staging/"${stage_ns}.yaml" > stage-tmp
           mv stage-tmp ./platform/staging/"${stage_ns}.yaml"
           sed -i "s/@ENV@/staging/g" ./platform/staging/"${stage_ns}.yaml"
           sed -i "s/@NAMESPACE@/${stage_ns}/g" ./platform/staging/"${stage_ns}.yaml"

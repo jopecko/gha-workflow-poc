@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    github-tag-prefix.crunchbase.com: v
+    github-url.crunchbase.com: github.com/crunchbase/gateway
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: eng-ops-notifications
+  name: staging-gateway
+spec:
+  destination:
+    name: staging
+    namespace: gateway
+  project: staging
+  source:
+    chart: gateway
+    helm:
+      values: |-
+        backendServices:
+          services:
+            cardservice: cardservice.core-loop-1113-1010.svc.cluster.local
+            entityservice: entityservice.core-loop-1113-1010.svc.cluster.local
+            metadataservice: metadataservice.core-loop-1113-1010.svc.cluster.local
+            streamingetl: streamingetl.core-loop-1113-1010.svc.cluster.local
+            streamingetlservice: streamingetlservice.core-loop-1113-1010.svc.cluster.local
+
+      valueFiles:
+        - values-staging.yaml
+    repoURL: https://chartmuseum.crunchbase.io/
+    targetRevision: x.x.x
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
