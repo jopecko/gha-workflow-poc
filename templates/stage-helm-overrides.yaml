@@ -1,0 +1,41 @@
+    helm:
+      valueFiles:
+        - values-staging.yaml
+      values: |-
+        global:
+          environment: staging
+          rbac: true
+          datadog_enabled: true
+          dataid: "@DATA_ID@"
+          runid: "@RUN_ID@"
+        cardservice:
+          export:
+            replicas: 0
+          postgres:
+            export:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+            sink:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+            state:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+        entityservice:
+          postgres:
+            host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+            url:  jdbc:postgresql://pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase:5432/entityservice?ApplicationName=entityservice
+        streamingetl:
+          metadataservice:
+            postgres:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+              url: jdbc:postgresql://pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase/metadataservice?ApplicationName=metadataservice
+          debezium:
+            database:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+          postgres:
+            entityservice:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+            listservice:
+              host: pg-shared-crunchbase-rw.stage.crunchbase
+            sink:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+            streaming:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
