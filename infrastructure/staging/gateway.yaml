@@ -17,11 +17,11 @@ spec:
       values: |-
         backendServices:
           services:
-            cardservice: cardservice.core-loop-1113-1010.svc.cluster.local
-            entityservice: entityservice.core-loop-1113-1010.svc.cluster.local
-            metadataservice: metadataservice.core-loop-1113-1010.svc.cluster.local
-            streamingetl: streamingetl.core-loop-1113-1010.svc.cluster.local
-            streamingetlservice: streamingetlservice.core-loop-1113-1010.svc.cluster.local
+            cardservice: cardservice.core-loop-1113-1011.svc.cluster.local
+            entityservice: entityservice.core-loop-1113-1011.svc.cluster.local
+            metadataservice: metadataservice.core-loop-1113-1011.svc.cluster.local
+            streamingetl: streamingetl.core-loop-1113-1011.svc.cluster.local
+            streamingetlservice: streamingetlservice.core-loop-1113-1011.svc.cluster.local
 
       valueFiles:
         - values-staging.yaml
