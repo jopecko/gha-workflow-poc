@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: @ENV@-@NAMESPACE@
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: @NAMESPACE@
+    name: @ENV@
+  project: @ENV@
+  source:
+    chart: core-loop
+    repoURL: https://chartmuseum.crunchbase.io/
+    targetRevision: @VERSION@
+@HELM_OVERRIDES@
+  syncPolicy:
+    managedNamespaceMetadata:
+      labels:
+        app.kubernetes.io/instance: @ENV@-@NAMESPACE@
+      annotations:
+        argocd.argoproj.io/tracking-id: >-
+          @ENV@-@NAMESPACE@:/Namespace:@NAMESPACE@/@NAMESPACE@
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true # When syncing changes, respect fields ignored by the ignoreDifferences configuration
+
+  # Will ignore differences between live and desired states during the diff. Note that these configurations are not
+  # used during the sync process unless the `RespectIgnoreDifferences=true` sync option is enabled.
+  ignoreDifferences:
+    # for the specified json pointers
+    - kind: CronJob
+      jsonPointers:
+      - /spec/suspend
+    - kind: CronJob
+      jsonPointers:
+      - /spec/suspend
+    - kind: Deployment
+      name: worlddatadog-active
+      jsonPointers:
+      - /spec/replicas
+    - kind: Deployment
+      name: worlddatadog-pre
+      jsonPointers:
+      - /spec/replicas
+    - kind: Deployment
+      name: cardserviceexport
+      jsonPointers:
+      - /spec/replicas
+    - kind: Deployment
+      name: entityserviceconsumer
+      jsonPointers:
+      - /spec/replicas
+    - kind: Job
+      jsonPointers:
+      - /spec/template/metadata/labels

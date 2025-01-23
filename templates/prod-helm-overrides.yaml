@@ -1,0 +1,39 @@
+    helm:
+      valueFiles:
+        - values-production.yaml
+      values: |-
+        global:
+          environment: production
+          rbac: true
+          datadog_enabled: true
+          dataid: "@DATA_ID@"
+          runid: "@RUN_ID@"
+        cardservice:
+          export:
+            replicas: 0
+          postgres:
+            export:
+              host: cardservice-postgres.prod.crunchbase
+            sink:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.prod.crunchbase
+        entityservice:
+          postgres:
+            host: pg-entityservice13-rw.prod.crunchbase
+            url:  jdbc:postgresql://pg-entityservice13-rw.prod.crunchbase:5432/entityservice?ApplicationName=entityservice
+        streamingetl:
+          metadataservice:
+            postgres:
+              host: metadataservice-postgres.prod.crunchbase
+              url: jdbc:postgresql://metadataservice-postgres.prod.crunchbase/metadataservice?ApplicationName=metadataservice
+          debezium:
+            database:
+              host: pg-entityservice13-rw.prod.crunchbase
+          postgres:
+            entityservice:
+              host: pg-entityservice13-rw.prod.crunchbase
+            listservice:
+              host: pg-listservice13-rw.prod.crunchbase
+            sink:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.prod.crunchbase
+            streaming:
+              host: pg-entityservice13-rw.prod.crunchbase
