@@ -63,8 +63,8 @@ jobs:
           promoted_stage=core-loop-$(echo "${{ inputs.staging_data_id }}")-$(echo "${{ inputs.staging_run_id }}")
           echo "promoted_stage=${promoted_stage}" >> $GITHUB_OUTPUT
 
-          sed -e "s/core-loop-[0-9]\{1,\}-[0-9]\{1,\}/$promoted_prod/g" ./infrastructure/production/gateway.yaml
-          sed -e "s/core-loop-[0-9]\{1,\}-[0-9]\{1,\}/$promoted_stage/g" ./infrastructure/staging/gateway.yaml
+          sed -i "s/core-loop-[0-9]\{1,\}-[0-9]\{1,\}/$promoted_prod/g" ./infrastructure/production/gateway.yaml
+          sed -i "s/core-loop-[0-9]\{1,\}-[0-9]\{1,\}/$promoted_stage/g" ./infrastructure/staging/gateway.yaml
 
       - name: Extract run number
         shell: bash
