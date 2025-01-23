@@ -1,0 +1,96 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: staging-core-loop-14-1
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: core-loop-14-1
+    name: staging
+  project: staging
+  source:
+    chart: core-loop
+    repoURL: https://chartmuseum.crunchbase.io/
+    targetRevision: 1.1.1
+    helm:
+      valueFiles:
+        - values-staging.yaml
+      values: |-
+        global:
+          environment: staging
+          rbac: true
+          datadog_enabled: true
+          dataid: "1113"
+          runid: "1"
+        cardservice:
+          export:
+            replicas: 0
+          postgres:
+            export:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+            sink:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+            state:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+        entityservice:
+          postgres:
+            host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+            url:  jdbc:postgresql://pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase:5432/entityservice?ApplicationName=entityservice
+        streamingetl:
+          metadataservice:
+            postgres:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+              url: jdbc:postgresql://pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase/metadataservice?ApplicationName=metadataservice
+          debezium:
+            database:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+          postgres:
+            entityservice:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+            listservice:
+              host: pg-shared-crunchbase-rw.stage.crunchbase
+            sink:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+            streaming:
+              host: pg-setl-{{ .Values.global.dataid }}-rw.stage.crunchbase
+  syncPolicy:
+    managedNamespaceMetadata:
+      labels:
+        app.kubernetes.io/instance: staging-core-loop-14-1
+      annotations:
+        argocd.argoproj.io/tracking-id: >-
+          staging-core-loop-14-1:/Namespace:core-loop-14-1/core-loop-14-1
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true # When syncing changes, respect fields ignored by the ignoreDifferences configuration
+
+  # Will ignore differences between live and desired states during the diff. Note that these configurations are not
+  # used during the sync process unless the `RespectIgnoreDifferences=true` sync option is enabled.
+  ignoreDifferences:
+    # for the specified json pointers
+    - kind: CronJob
+      jsonPointers:
+      - /spec/suspend
+    - kind: CronJob
+      jsonPointers:
+      - /spec/suspend
+    - kind: Deployment
+      name: worlddatadog-active
+      jsonPointers:
+      - /spec/replicas
+    - kind: Deployment
+      name: worlddatadog-pre
+      jsonPointers:
+      - /spec/replicas
+    - kind: Deployment
+      name: cardserviceexport
+      jsonPointers:
+      - /spec/replicas
+    - kind: Deployment
+      name: entityserviceconsumer
+      jsonPointers:
+      - /spec/replicas
+    - kind: Job
+      jsonPointers:
+      - /spec/template/metadata/labels
